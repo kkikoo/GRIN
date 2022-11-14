@@ -18,3 +18,37 @@ def compare(if_line: list[GrinToken], VL: VariableList):
     Returns:
         int: a bool value of value1 op value2 or -1 if there is a RuntimeError
     """
+    op = if_line[2].kind
+    value1 = if_line[1]
+    value2 = if_line[3]
+    # value1, may be a var
+    if value1.value == value1.text:
+        value1 = VL.variable_list[value1.value]
+    else:
+        value1 = if_line[1].value
+
+    # value2, may be a var
+    if value2.value == value2.text:
+        value2 = VL.variable_list[value2.value]
+    else:
+        value2 = if_line[3].value
+    # print(value1,value2)
+    Tag = True
+    try:
+        if op == GrinTokenKind.EQUAL:
+            Tag = (value1 == value2)
+        if op == GrinTokenKind.NOT_EQUAL:
+            Tag = (value1 != value2)
+        if op == GrinTokenKind.LESS_THAN:
+            Tag = value1 < value2
+        if op == GrinTokenKind.LESS_THAN_OR_EQUAL:
+            Tag = value1 <= value2
+        if op == GrinTokenKind.GREATER_THAN:
+            Tag = value1 > value2
+        if op == GrinTokenKind.GREATER_THAN_OR_EQUAL:
+            Tag = value1 >= value2
+    except:
+        Tag = -1
+    return Tag
+
+
