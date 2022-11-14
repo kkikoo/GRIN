@@ -73,3 +73,112 @@ class Simulation:
             if_line = line[index_of_if:]
             comp = compare(if_line, self._var_list)
             return comp
+
+    def _process_line_with_label(self, line: list[GrinToken]):
+        tag = -1
+        for i in range(len(line)):
+            if line[i].kind == GrinTokenKind.COLON:
+                tag = i
+                break
+        if tag == -1:
+            return line
+        else:
+            return line[tag+1:]
+
+    def simulation(self):
+        self._stack.append(0)
+        while len(self._stack) != 0:
+            now_do_line_number = self._stack.pop()
+            if now_do_line_number >= len(self._grin_lines):
+                break
+
+            now_do_line = self._process_line_with_label(
+                self._grin_lines[now_do_line_number]
+            )
+            op_type = now_do_line[0].kind
+
+            # input
+            if op_type in [GrinTokenKind.INNUM, GrinTokenKind.INSTR]:
+                try:
+                    self._input(now_do_line)
+                    self._stack.append(now_do_line_number + 1)
+                except:
+                    print(ErrorMessageClass().INPUT_ERROR)
+                    break
+            # output
+            elif op_type == GrinTokenKind.PRINT:
+                self._output(now_do_line)
+                self._stack.append(now_do_line_number + 1)
+            # let
+            if op_type == GrinTokenKind.LET:
+                self._let(now_do_line)
+                self._stack.append(now_do_line_number + 1)
+            # end
+            elif op_type in [GrinTokenKind.END]:
+                break
+            # return
+            elif op_type == GrinTokenKind.RETURN:
+                self.number_of_return += 1
+                if self.number_of_return > self.number_of_gosub:
+                    print(ErrorMessageClass().RETURN_ERROR)
+                    break
+                continue
+
+            # arithmetic: +,-,*,/
+            elif op_type in [GrinTokenKind.ADD, GrinTokenKind.SUB, GrinTokenKind.MULT, GrinTokenKind.DIV]:
+                try:
+                    A = Arithmetic(self._var_list, now_do_line)
+                    A.calculate()
+                    self._stack.append(now_do_line_number + 1)
+                except:
+                    print(ErrorMessageClass().Arithmetic_ERROR)
+                    break
+            # goto / gosub
+            elif op_type in [GrinTokenKind.GOTO, GrinTokenKind.GOSUB]:
+                bool_of_if = self.bool_of_if(now_do_line)
+                if bool_of_if == -1:
+                    print(ErrorMessageClass().COMPARE_ERROR)
+                    break
+                if bool_of_if == 0:
+                    self._stack.append(now_do_line_number + 1)
+                    continue
+
+                if op_type == GrinTokenKind.GOSUB:
+                    self.number_of_gosub += 1
+                    self._stack.append(now_do_line_number + 1)
+
+                goto_index = now_do_line[1].value
+
+                # value of goto(gosub), like goto 5
+                if type(goto_index) == int:
+                    if goto_index == 0:
+                        print(ErrorMessageClass().GOTO_0_ERROR)
+                        break
+                    else:
+                        next_line_number = now_do_line_number + goto_index
+                else:
+                    if now_do_line[1].text == now_do_line[1].value:  # var
+                        value_of_this_var = self._var_list.variable_list[now_do_line[1].value]
+                        if type(value_of_this_var) == int:
+                            next_line_number = now_do_line_number + value_of_this_var
+                        else:
+                            if value_of_this_var not in self._index_of_label.keys():
+                                print(ErrorMessageClass().GOTO_NOT_EXIST_LABEL)
+                                break
+                            else:
+                                next_line_number = self._index_of_label[value_of_this_var]
+                        if now_do_line_number == next_line_number:
+                            print(ErrorMessageClass().GOTO_0_ERROR)
+                            break
+                    else:  # label
+                        if now_do_line[1].value not in self._index_of_label.keys():
+                            print(ErrorMessageClass().GOTO_NOT_EXIST_LABEL)
+                            break
+                        else:
+                            next_line_number = self._index_of_label[now_do_line[1].value]
+
+                if next_line_number >= 0 and next_line_number <= self._max_line_number:
+                    self._stack.append(next_line_number)
+                else:
+                    print(ErrorMessageClass().GOTO_INVALID_LINE)
+
