@@ -36,3 +36,48 @@ class Arithmetic:
             self.multi()
         elif self.op == GrinTokenKind.DIV:
             self.div()
+    def add(self):
+        """do the + operation"""
+        try:
+            self.var_list.variable_list[self.var] += self.value
+        except:
+            raise TypeError(
+                "unsupported operand type(s) for +: '{}' and '{}'".format(
+                    type(self.var).__name__, type(self.value).__name__)
+            )
+
+    def sub(self):
+        """do the - operation"""
+        try:
+            self.var_list.variable_list[self.var] -= self.value
+        except:
+            raise TypeError(
+                "unsupported operand type(s) for -: '{}' and '{}'".format(
+                    type(self.var).__name__, type(self.value).__name__)
+            )
+
+    def multi(self):
+        """do the * operation"""
+        try:
+            self.var_list.variable_list[self.var] *= self.value
+        except:
+            raise TypeError(
+                "unsupported operand type(s) for *: '{}' and '{}'".format(
+                    type(self.var).__name__, type(self.value).__name__)
+            )
+
+    def div(self):
+        """do the / operation"""
+        if self.value == 0:
+            raise ZeroDivisionError("division by zero")
+        try:
+            if type(self.var_list.variable_list[self.var]) == type(self.value) and \
+                    type(self.value) == int:
+                self.var_list.variable_list[self.var] //= self.value
+            else:
+                self.var_list.variable_list[self.var] /= self.value
+        except:
+            raise TypeError(
+                "unsupported operand type(s) for /: '{}' and '{}'".format(
+                    type(self.var).__name__, type(self.value).__name__)
+            )
