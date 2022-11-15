@@ -8,7 +8,7 @@ from grin.variable_list import VariableList
 from grin.arithmetic import Arithmetic
 
 
-class ErrorMessageClass():
+class ErrorMessageClass:
     """ Store all types of error-message
     """
 
