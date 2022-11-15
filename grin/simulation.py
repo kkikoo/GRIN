@@ -6,10 +6,10 @@ from grin.compare import compare
 from grin.token import GrinTokenKind, GrinToken
 from grin.variable_list import VariableList
 from grin.arithmetic import Arithmetic
-from enum import Enum
+
 
 class ErrorMessageClass():
-    """ Store all types of error-messgae
+    """ Store all types of error-message
     """
 
     def __init__(self) -> None:
@@ -177,9 +177,8 @@ class Simulation:
                             break
                         else:
                             next_line_number = self._index_of_label[now_do_line[1].value]
-
-                if next_line_number >= 0 and next_line_number <= self._max_line_number:
+                # print(next_line_number,now_do_line_number)
+                if 0 <= next_line_number <= self._max_line_number and next_line_number != now_do_line_number:
                     self._stack.append(next_line_number)
                 else:
                     print(ErrorMessageClass().GOTO_INVALID_LINE)
-
