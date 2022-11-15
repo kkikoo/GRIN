@@ -6,6 +6,8 @@ from grin.parsing import parse
 import unittest
 import io
 import contextlib
+from grin.variable_list import VariableList
+from collections import defaultdict
 
 class TestSimulation(unittest.TestCase):
     def test_many_labels(self):
@@ -349,4 +351,6 @@ class TestSimulation(unittest.TestCase):
                 "5\n"
             )
 
+if __name__ == "__main__":
+    unittest.main()
 
